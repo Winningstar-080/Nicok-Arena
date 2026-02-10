@@ -1,0 +1,42 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f6fa;
+  margin: 0;
+}
+
+nav {
+  background: #111827;
+  color: white;
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+}
+
+nav ul {
+  list-style: none;
+  display: flex;
+  gap: 15px;
+}
+
+nav li {
+  cursor: pointer;
+}
+
+.section {
+  padding: 20px;
+}
+
+.hidden {
+  display: none;
+}
+
+table {
+  width: 100%;
+  background: white;
+  border-collapse: collapse;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 10px;
+}

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>NiCok Arena</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav>
+  <h2>NiCok Fun Challenge</h2>
+  <ul>
+    <li onclick="showSection('participants')">Participants</li>
+    <li onclick="showSection('rules')">Rules & Terms</li>
+    <li onclick="showSection('prizes')">Prizes</li>
+    <li onclick="showSection('mode')">Tournament Mode</li>
+    <li onclick="showSection('brackets')">Brackets</li>
+    <li onclick="showSection('admin')">Admin</li>
+  </ul>
+</nav>
+
+<section id="participants" class="section">
+  <h3>Participants</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>P</th>
+        <th>W</th>
+        <th>L</th>
+        <th>Pts</th>
+      </tr>
+    </thead>
+    <tbody id="participantTable"></tbody>
+  </table>
+</section>
+
+<section id="rules" class="section hidden">
+  <h3>Rules & Terms</h3>
+  <p id="rulesText"></p>
+</section>
+
+<section id="prizes" class="section hidden">
+  <h3>Prizes</h3>
+  <p id="prizesText"></p>
+</section>
+
+<section id="mode" class="section hidden">
+  <h3>Current Tournament Mode</h3>
+  <p id="modeText"></p>
+</section>
+
+<section id="brackets" class="section hidden">
+  <h3>Knockout Brackets</h3>
+  <div id="bracketContainer"></div>
+</section>
+
+<section id="admin" class="section hidden">
+  <h3>Admin Panel</h3>
+
+  <div id="loginBox">
+    <input type="password" id="adminPassword" placeholder="Enter password">
+    <button onclick="login()">Login</button>
+  </div>
+
+  <div id="adminControls" class="hidden">
+
+    <h4>Add Participant</h4>
+    <input id="pName" placeholder="Name">
+    <input id="pDesc" placeholder="Description">
+    <button onclick="addParticipant()">Add</button>
+
+    <h4>Edit Rules</h4>
+    <textarea id="rulesInput"></textarea>
+    <button onclick="updateRules()">Save</button>
+
+    <h4>Edit Prizes</h4>
+    <textarea id="prizesInput"></textarea>
+    <button onclick="updatePrizes()">Save</button>
+
+    <h4>Tournament Mode</h4>
+    <select id="modeSelect">
+      <option>Group Stage</option>
+      <option>Round Robin</option>
+      <option>Knockout</option>
+    </select>
+    <button onclick="setMode()">Apply</button>
+
+    <button onclick="generateBracket()">Generate Knockout Bracket</button>
+
+  </div>
+</section>
+
+<script src="script.js"></script>
+</body>
+</html>

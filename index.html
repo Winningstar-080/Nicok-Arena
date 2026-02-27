@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>NiCok Arena</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>NiCok Arena</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -20,19 +20,8 @@
 </nav>
 
 <section id="participants" class="section">
-  <h3>Participants</h3>
-  <table>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>P</th>
-        <th>W</th>
-        <th>L</th>
-        <th>Pts</th>
-      </tr>
-    </thead>
-    <tbody id="participantTable"></tbody>
-  </table>
+  <h3>League / Group Tables</h3>
+  <div id="tablesContainer"></div>
 </section>
 
 <section id="rules" class="section hidden">
@@ -65,26 +54,31 @@
 
   <div id="adminControls" class="hidden">
 
-    <h4>Add Participant</h4>
+    <h4>Add / Edit Participant</h4>
     <input id="pName" placeholder="Name">
-    <input id="pDesc" placeholder="Description">
-    <button onclick="addParticipant()">Add</button>
+    <input id="pWins" type="number" placeholder="Wins">
+    <input id="pDraws" type="number" placeholder="Draws">
+    <input id="pLosses" type="number" placeholder="Losses">
+    <input id="pDiff" type="number" placeholder="Point Difference">
+    <input id="groupSelect" placeholder="Enter Group Name (e.g., A, B, Group 1)">
+    <button onclick="addParticipant()">Save Participant</button>
+
+    <hr>
 
     <h4>Edit Rules</h4>
     <textarea id="rulesInput"></textarea>
-    <button onclick="updateRules()">Save</button>
+    <button onclick="updateRules()">Save Rules</button>
 
     <h4>Edit Prizes</h4>
     <textarea id="prizesInput"></textarea>
-    <button onclick="updatePrizes()">Save</button>
+    <button onclick="updatePrizes()">Save Prizes</button>
 
     <h4>Tournament Mode</h4>
-    <select id="modeSelect">
-      <option>Group Stage</option>
-      <option>Round Robin</option>
-      <option>Knockout</option>
+    <select id="modeSelect" onchange="setMode()">
+      <option value="groupStage">Group Stage</option>
+      <option value="roundRobin">Round Robin</option>
+      <option value="knockout">Knockout</option>
     </select>
-    <button onclick="setMode()">Apply</button>
 
     <button onclick="generateBracket()">Generate Knockout Bracket</button>
 

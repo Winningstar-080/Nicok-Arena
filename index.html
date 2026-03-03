@@ -14,8 +14,10 @@
     <li onclick="showSection('rules')">Rules & Terms</li>
     <li onclick="showSection('prizes')">Prizes</li>
     <li onclick="showSection('mode')">Tournament Mode</li>
+    <li onclick="showSection('fixtures')">Fixtures</li>
     <li onclick="showSection('brackets')">Brackets</li>
-    <li onclick="showSection('admin')">Admin</li>
+    <li onclick="showSection('medals')">Medals</li>
+     <li onclick="showSection('admin')">Admin</li>
   </ul>
 </nav>
 
@@ -39,9 +41,19 @@
   <p id="modeText"></p>
 </section>
 
+<section id="fixtures" class="section hidden">
+  <h3>Fixtures</h3>
+  <div id="fixturesContainer"></div>
+</section>
+
 <section id="brackets" class="section hidden">
   <h3>Knockout Brackets</h3>
-  <div id="bracketContainer"></div>
+  <div id="bracketContainer" class="bracket-tree"></div>
+</section>
+
+<section id="medals" class="section hidden">
+  <h3>Podium</h3>
+  <div id="medalContainer" class="medal-podium"></div>
 </section>
 
 <section id="admin" class="section hidden">
@@ -80,8 +92,21 @@
       <option value="knockout">Knockout</option>
     </select>
 
-    <button onclick="generateBracket()">Generate Knockout Bracket</button>
+    <h4>Tournament Duration & Settings</h4>
+    <label>Match Cycles / Matches per team:</label>
+    <input id="matchCycles" type="number" min="1" value="1">
+    <label>Number of Qualifiers per group (for group stage):</label>
+    <input id="qualifiers" type="number" min="1" value="2">
+    <label>Number of Knockout Rounds Before Final:</label>
+    <input id="knockoutRounds" type="number" min="1" value="1">
+    <label>Enable Third-Place Match:</label>
+    <input id="thirdPlaceToggle" type="checkbox" checked>
 
+    <hr>
+
+    <button onclick="generateFixtures();">Generate Fixtures</button>
+    <button onclick="generateBracket()">Generate Knockout Bracket</button>
+    <button onclick="showMedals()">Show Medals / Podium</button>
   </div>
 </section>
 

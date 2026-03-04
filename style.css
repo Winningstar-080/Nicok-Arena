@@ -9,9 +9,7 @@ body {
   color: #f1f5f9;
 }
 
-h3, h4 {
-  margin-bottom: 10px;
-}
+h3, h4 { margin-bottom: 10px; }
 
 /* ==============================
    NAVBAR
@@ -26,37 +24,19 @@ nav {
   box-shadow: 0 2px 10px rgba(0,0,0,0.5);
 }
 
-nav h2 {
-  margin: 0;
-  font-weight: 600;
-}
+nav h2 { margin: 0; font-weight: 600; }
 
-nav ul {
-  list-style: none;
-  display: flex;
-  gap: 20px;
-}
+nav ul { list-style: none; display: flex; gap: 20px; }
 
-nav li {
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-nav li:hover {
-  color: #38bdf8;
-}
+nav li { cursor: pointer; transition: 0.3s; }
+nav li:hover { color: #38bdf8; }
 
 /* ==============================
    SECTIONS
 ================================= */
 
-.section {
-  padding: 30px;
-}
-
-.hidden {
-  display: none;
-}
+.section { padding: 30px; }
+.hidden { display: none; }
 
 /* ==============================
    TABLE STYLING
@@ -83,18 +63,13 @@ td {
   border-bottom: 1px solid #334155;
 }
 
-tr:hover {
-  background: #1e293b;
-}
+tr:hover { background: #1e293b; }
 
 /* ==============================
    FIXTURES CARDS
 ================================= */
 
-#fixturesContainer {
-  display: grid;
-  gap: 15px;
-}
+#fixturesContainer { display: grid; gap: 15px; }
 
 .fixture-card {
   background: #1e293b;
@@ -113,106 +88,63 @@ tr:hover {
 }
 
 /* ==============================
-   CHAMPIONS LEAGUE BRACKET
+   KNOCKOUT BRACKET
 ================================= */
 
-.bracket-tree {
-  display: flex;
-  gap: 60px;
-  overflow-x: auto;
-  padding: 20px 0;
-}
-
-.round {
-  display: flex;
-  flex-direction: column;
-  gap: 40px;
-}
-
-.round h4 {
-  text-align: center;
-}
-
+.bracket-tree { display: flex; gap: 60px; overflow-x: auto; padding: 20px 0; align-items: flex-start; }
+.round { display: flex; flex-direction: column; gap: 40px; }
+.round h4 { text-align: center; }
 .match {
   background: #1e293b;
-  padding: 10px;
+  padding: 15px;
   border-radius: 6px;
   min-width: 160px;
   text-align: center;
   border: 1px solid #334155;
   transition: 0.3s;
+  position: relative;
+}
+.match.winner { border: 2px solid #38bdf8; }
+.match.played{
+  opacity:0.6;
 }
 
-.match:hover {
-  background: #334155;
+.match.winner{
+  opacity:1;
+  border:2px solid #38bdf8;
+}
+.match.loser { opacity: 0.5; }
+.match input { width: 50px; margin: 5px 0; display: block; margin-left: auto; margin-right: auto; }
+.match span { display: block; margin: 5px 0; }
+.third-place-label { 
+  text-align: center; 
+  margin-top: 20px; 
+  font-weight: bold; 
+  font-size: 1.1rem; 
+  color: #f97316;   /* Bronze */
+}
+
+.final-title{
+  color:#facc15;
+  font-weight:bold;
 }
 
 /* ==============================
    MEDAL PODIUM
 ================================= */
 
-.medal-podium {
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  gap: 40px;
-  margin-top: 40px;
-}
-
-.podium-place {
-  text-align: center;
-  padding: 20px;
-  border-radius: 10px;
-  width: 150px;
-  animation: slideUp 1s ease forwards;
-}
-
-.first {
-  background: #facc15;
-  height: 220px;
-}
-
-.second {
-  background: #cbd5e1;
-  height: 180px;
-}
-
-.third {
-  background: #f97316;
-  height: 150px;
-}
-
-.podium-place h2 {
-  margin: 10px 0;
-}
-
-@keyframes slideUp {
-  from { transform: translateY(100px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
+.medal-podium { display: flex; justify-content: center; align-items: flex-end; gap: 40px; margin-top: 40px; }
+.podium-place { text-align: center; padding: 20px; border-radius: 10px; width: 150px; animation: slideUp 1s ease forwards; }
+.first { background: #facc15; height: 220px; }
+.second { background: #cbd5e1; height: 180px; }
+.third { background: #f97316; height: 150px; }
+.podium-place h2 { margin: 10px 0; }
+@keyframes slideUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
 /* ==============================
    ADMIN INPUTS
 ================================= */
 
-input, textarea, select {
-  background: #1e293b;
-  color: white;
-  border: 1px solid #334155;
-  padding: 8px;
-  border-radius: 6px;
-  margin-bottom: 10px;
-}
-
-button {
-  background: #38bdf8;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-button:hover {
-  background: #0ea5e9;
-}
+input, textarea, select { background: #1e293b; color: white; border: 1px solid #334155; padding: 8px; border-radius: 6px; margin-bottom: 10px; }
+button { background: #38bdf8; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; transition: 0.3s; }
+button:hover { background: #0ea5e9; }

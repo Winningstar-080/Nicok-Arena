@@ -19,7 +19,6 @@ function updateModeDisplay(){
     roundRobin: "Round Robin",
     knockout: "Knockout"
   };
-
   document.getElementById("modeText").innerText = displayNames[mode] || "Group Stage";
 }
 
@@ -66,7 +65,7 @@ function login() {
 
 function setMode() {
   mode = modeSelect.value;
-  updateModeDisplay();   // 👈 important
+  updateModeDisplay();
   renderParticipants();
 }
 
@@ -78,8 +77,19 @@ function addParticipant() {
   const name = pName.value.trim();
   if (!name) return alert("Enter participant name");
 
+  const fileInput = document.getElementById("pImage");
+  const file = fileInput.files[0];
+
+  let image = "";
+
+  if (file) {
+    image = URL.createObjectURL(file);
+  }
+
   const data = {
     name,
+    image: image,
+    info: pInfo.value.trim(),
     wins: Number(pWins.value) || 0,
     draws: Number(pDraws.value) || 0,
     losses: Number(pLosses.value) || 0,
@@ -125,6 +135,8 @@ function deleteParticipant(modeName, name, group) {
 
 function clearInputs() {
   pName.value = "";
+  pImage.value = "";
+  pInfo.value = "";
   pWins.value = "";
   pDraws.value = "";
   pLosses.value = "";
@@ -149,6 +161,26 @@ function renderParticipants() {
   } else if (mode === "roundRobin") {
     container.innerHTML += `<table>${generateTable(tournamentData.roundRobin)}</table>`;
   }
+
+  // ✅ Attach click events after rendering
+  document.querySelectorAll("#tablesContainer td.clickable").forEach(td => {
+    td.onclick = () => {
+      const table = td.closest("table");
+      const groupHeader = table.previousElementSibling?.innerText;
+      let list;
+
+      if (mode === "groupStage" && groupHeader) {
+        const groupName = groupHeader.replace("Group ", "");
+        list = tournamentData.groupStage[groupName];
+      } else {
+        list = tournamentData.roundRobin;
+      }
+
+      const index = Number(td.dataset.index);
+      const participant = list[index];
+      showParticipantPopup(participant);
+    };
+  });
 }
 
 function generateTable(list) {
@@ -165,7 +197,10 @@ function generateTable(list) {
     <tbody>
       ${list.map((p,i) => `<tr>
         <td>${i+1}</td>
-        <td>${p.name}</td>
+        <td class="clickable" data-index="${i}">
+          ${p.image ? `<img src="${p.image}" class="player-img">` : ""}
+          ${p.name}
+        </td>
         <td>${p.points}</td>
         <td>${p.played}</td>
         <td>${p.wins}</td>
@@ -214,43 +249,33 @@ function generateFixtures() {
 
 function saveFixture(matchId){
   const match = fixturesData.find(m=>m.id===matchId);
-
   const h = Number(document.getElementById(`home-${matchId}`).value);
   const a = Number(document.getElementById(`away-${matchId}`).value);
-
   if(isNaN(h)||isNaN(a)) return alert("Enter valid scores");
 
   match.homeScore = h;
   match.awayScore = a;
 
-  updateStandings();   // 🔥 NEW
-  renderParticipants(); // 🔥 NEW
+  updateStandings();
+  renderParticipants();
 
   alert(`Saved: ${match.home} ${h} - ${a} ${match.away}`);
 }
 
 function updateStandings(){
-
-  // Reset all stats first
+  // Reset stats
   if(mode === "groupStage"){
     Object.values(tournamentData.groupStage).forEach(group=>{
-      group.forEach(p=>{
-        p.wins=0; p.draws=0; p.losses=0; p.diff=0;
-      });
+      group.forEach(p=>{p.wins=0; p.draws=0; p.losses=0; p.diff=0;});
     });
   }
-
   if(mode === "roundRobin"){
-    tournamentData.roundRobin.forEach(p=>{
-      p.wins=0; p.draws=0; p.losses=0; p.diff=0;
-    });
+    tournamentData.roundRobin.forEach(p=>{p.wins=0; p.draws=0; p.losses=0; p.diff=0;});
   }
 
   fixturesData.forEach(match=>{
     if(match.homeScore===null || match.awayScore===null) return;
-
     let homePlayer, awayPlayer;
-
     if(mode==="groupStage"){
       Object.values(tournamentData.groupStage).forEach(group=>{
         group.forEach(p=>{
@@ -262,7 +287,6 @@ function updateStandings(){
       homePlayer = tournamentData.roundRobin.find(p=>p.name===match.home);
       awayPlayer = tournamentData.roundRobin.find(p=>p.name===match.away);
     }
-
     if(!homePlayer || !awayPlayer) return;
 
     homePlayer.diff += (match.homeScore - match.awayScore);
@@ -280,6 +304,31 @@ function updateStandings(){
     }
   });
 }
+
+/* ===============================
+   PARTICIPANT POPUP DISPLAY
+================================= */
+
+function showParticipantPopup(participant) {
+  const popup = document.getElementById("participantPopup");
+  document.getElementById("popupImage").src = participant.image || "https://via.placeholder.com/100";
+  document.getElementById("popupName").innerText = participant.name;
+  document.getElementById("popupInfo").innerText = participant.info || "No additional info.";
+
+ document.getElementById("popupStats").innerHTML = "";
+
+  popup.classList.remove("hidden");
+}
+
+document.getElementById("closePopup").onclick = () => {
+  document.getElementById("participantPopup").classList.add("hidden");
+};
+
+participantPopup.onclick = (e)=>{
+  if(e.target.id === "participantPopup"){
+    participantPopup.classList.add("hidden");
+  }
+};
 
 /* ===============================
    KNOCKOUT ENGINE + 3rd place

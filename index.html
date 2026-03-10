@@ -67,14 +67,20 @@
   <div id="adminControls" class="hidden">
 
     <h4>Add / Edit Participant</h4>
-    <input id="pName" placeholder="Name">
-    <input id="pWins" type="number" placeholder="Wins">
-    <input id="pDraws" type="number" placeholder="Draws">
-    <input id="pLosses" type="number" placeholder="Losses">
-    <input id="pDiff" type="number" placeholder="Point Difference">
-    <input id="groupSelect" placeholder="Enter Group Name (e.g., A, B, Group 1)">
-    <button onclick="addParticipant()">Save Participant</button>
 
+      <div class="participantRow">
+        <input id="pName" placeholder="Name">
+        <input type="file" id="pImage" accept="image/*">
+        <textarea id="pInfo" placeholder="Participant information (bio, team details etc)"></textarea>
+        <input id="pWins" type="number" placeholder="Wins">
+        <input id="pDraws" type="number" placeholder="Draws">
+        <input id="pLosses" type="number" placeholder="Losses">
+        <input id="pDiff" type="number" placeholder="Point Difference">
+        <input id="groupSelect" placeholder="Enter Group Name (e.g., A, B, Group 1)">
+      </div>
+
+    <button onclick="addParticipant()">Save Participant</button>
+    
     <hr>
 
     <h4>Edit Rules</h4>
@@ -109,6 +115,17 @@
     <button onclick="showMedals()">Show Medals / Podium</button>
   </div>
 </section>
+
+<!-- Participant Profile Popup -->
+<div id="participantPopup" class="hidden">
+  <div class="popupContent">
+    <button id="closePopup">&times;</button>
+    <img id="popupImage" src="https://via.placeholder.com/100" alt="Participant Image">
+    <h3 id="popupName"></h3>
+    <p id="popupInfo"></p>
+    <ul id="popupStats"></ul>
+  </div>
+</div>
 
 <script src="script.js"></script>
 </body>

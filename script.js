@@ -330,13 +330,50 @@ participantPopup.onclick = (e)=>{
   }
 };
 
+function openPlayerProfile(name){
+
+  if(!name || name === "-") return;
+
+  let player = null;
+
+  if(mode === "groupStage"){
+    Object.values(tournamentData.groupStage).forEach(group=>{
+      group.forEach(p=>{
+        if(p.name === name) player = p;
+      });
+    });
+  }
+
+  if(mode === "roundRobin"){
+    player = tournamentData.roundRobin.find(p=>p.name === name);
+  }
+
+  if(mode === "knockout"){
+    player = tournamentData.knockout.find(p=>p.name === name);
+  }
+
+  if(player){
+    showParticipantPopup(player);
+  }
+}
+
 /* ===============================
    KNOCKOUT ENGINE + 3rd place
 ================================= */
 
 function generateBracket() {
-  if(mode!=='knockout') return;
-  const participants=[...tournamentData.knockout];
+  if(mode!=='knockout' && mode!=='groupStage') return;
+  let participants = [];
+
+if(mode === "groupStage"){
+  participants = getQualifiedPlayers();
+}
+else if(mode === "knockout"){
+  participants = [...tournamentData.knockout];
+}
+  
+  updateStandings();
+  
   if(participants.length<2) return alert("Not enough participants");
 
   knockoutRounds=[]; knockoutChampion=null; knockoutRunnerUp=null; thirdPlaceWinner=null;
@@ -399,6 +436,54 @@ function advanceWinner(r,m){
 
 let thirdPlaceMatch=null;
 
+function getQualifiers(){
+  return Number(document.getElementById("qualifiers").value) || 2;
+}
+
+function getQualifiedPlayers(){
+
+  updateStandings();
+
+  const qualifiers = getQualifiers();
+  let groupWinners = [];
+  let groupRunnersUp = [];
+
+  Object.keys(tournamentData.groupStage).forEach(groupName => {
+
+    const group = tournamentData.groupStage[groupName];
+
+    group.forEach(p=>{
+      p.played = p.wins + p.draws + p.losses;
+      p.points = p.wins * 3 + p.draws;
+    });
+
+    // Sort standings
+    group.sort((a,b)=> b.points - a.points || b.diff - a.diff);
+
+    // Winner
+    if(group[0]) groupWinners.push(group[0]);
+
+    // Runner-up
+    if(qualifiers >= 2 && group[1]) groupRunnersUp.push(group[1]);
+
+  });
+
+  // Cross-group seeding
+  let seeded = [];
+
+  for(let i=0;i<groupWinners.length;i++){
+
+    const winner = groupWinners[i];
+    const opponent = groupRunnersUp[(i+1) % groupRunnersUp.length];
+
+    seeded.push(winner);
+    seeded.push(opponent);
+
+  }
+
+  return seeded;
+}
+
 function saveThirdPlace(){
   const h=Number(document.getElementById(`thirdHome`).value);
   const a=Number(document.getElementById(`thirdAway`).value);
@@ -443,13 +528,18 @@ if(match.homeScore!==null && match.awayScore!==null){
   div.classList.add("played");
 }
       div.innerHTML=`
-        <span>${match.home||"-"}</span>
-        <input type="number" id="k-home-${ri}-${mi}" value="${match.homeScore??''}">
-        <span>vs</span>
-        <input type="number" id="k-away-${ri}-${mi}" value="${match.awayScore??''}">
-        <span>${match.away||"-"}</span>
-        ${isAdminLoggedIn?`<button onclick="saveKnockoutScore(${ri},${mi})">Save</button>`:""}
-      `;
+        <span class="clickable" onclick="openPlayerProfile('${match.home}')">${match.home||"-"}</span>
+
+      <input type="number" id="k-home-${ri}-${mi}" value="${match.homeScore??''}">
+
+      <span>vs</span>
+
+      <input type="number" id="k-away-${ri}-${mi}" value="${match.awayScore??''}">
+
+      <span class="clickable" onclick="openPlayerProfile('${match.away}')">${match.away||"-"}</span>
+
+      ${isAdminLoggedIn?`<button onclick="saveKnockoutScore(${ri},${mi})">Save</button>`:""}
+`     ;
       roundDiv.appendChild(div);
     });
     container.appendChild(roundDiv);

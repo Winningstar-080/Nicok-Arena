@@ -13,15 +13,6 @@ let mode = "groupStage";
    DATA STRUCTURES
 ================================= */
 
-function updateModeDisplay(){
-  const displayNames = {
-    groupStage: "Group Stage",
-    roundRobin: "Round Robin",
-    knockout: "Knockout"
-  };
-  document.getElementById("modeText").innerText = displayNames[mode] || "Group Stage";
-}
-
 let tournamentData = {
   groupStage: {}, // unlimited groups
   roundRobin: [],
@@ -33,6 +24,7 @@ let knockoutRounds = [];
 let knockoutChampion = null;
 let knockoutRunnerUp = null;
 let thirdPlaceWinner = null;
+let thirdPlaceMatch = null;
 
 /* ===============================
    SECTION NAVIGATION
@@ -49,7 +41,11 @@ function showSection(id) {
 ================================= */
 
 function login() {
-  if (adminPassword.value === ADMIN_PASSWORD) {
+  const adminPasswordInput = document.getElementById("adminPassword");
+  const loginBox = document.getElementById("loginBox");
+  const adminControls = document.getElementById("adminControls");
+
+  if (adminPasswordInput.value === ADMIN_PASSWORD) {
     isAdminLoggedIn = true;
     loginBox.classList.add("hidden");
     adminControls.classList.remove("hidden");
@@ -64,9 +60,23 @@ function login() {
 ================================= */
 
 function setMode() {
+  const modeSelect = document.getElementById("modeSelect");
   mode = modeSelect.value;
   updateModeDisplay();
   renderParticipants();
+}
+
+/* ===============================
+   MODE DISPLAY
+================================= */
+
+function updateModeDisplay(){
+  const displayNames = {
+    groupStage: "Group Stage",
+    roundRobin: "Round Robin",
+    knockout: "Knockout"
+  };
+  document.getElementById("modeText").innerText = displayNames[mode] || "Group Stage";
 }
 
 /* ===============================
@@ -74,33 +84,28 @@ function setMode() {
 ================================= */
 
 function addParticipant() {
-  const name = pName.value.trim();
-  if (!name) return alert("Enter participant name");
+  const pName = document.getElementById("pName").value.trim();
+  if (!pName) return alert("Enter participant name");
 
   const fileInput = document.getElementById("pImage");
   const file = fileInput.files[0];
-
   let image = "";
-
-  if (file) {
-    image = URL.createObjectURL(file);
-  }
+  if(file) image = URL.createObjectURL(file);
 
   const data = {
-    name,
+    name: pName,
     image: image,
-    info: pInfo.value.trim(),
-    wins: Number(pWins.value) || 0,
-    draws: Number(pDraws.value) || 0,
-    losses: Number(pLosses.value) || 0,
-    diff: Number(pDiff.value) || 0,
-    group: groupSelect.value.trim()
+    info: document.getElementById("pInfo").value.trim(),
+    wins: Number(document.getElementById("pWins").value) || 0,
+    draws: Number(document.getElementById("pDraws").value) || 0,
+    losses: Number(document.getElementById("pLosses").value) || 0,
+    diff: Number(document.getElementById("pDiff").value) || 0,
+    group: document.getElementById("groupSelect").value.trim()
   };
 
   if (mode === "groupStage") {
     if (!data.group) return alert("Enter group name");
-    if (!tournamentData.groupStage[data.group])
-      tournamentData.groupStage[data.group] = [];
+    if (!tournamentData.groupStage[data.group]) tournamentData.groupStage[data.group] = [];
     if (editIndex !== null) {
       tournamentData.groupStage[data.group][editIndex] = data;
       editIndex = null;
@@ -127,50 +132,51 @@ function addParticipant() {
   renderParticipants();
 }
 
-function deleteParticipant(modeName, name, group) {
+function deleteParticipant(modeName, name, group){
   let list = modeName === "groupStage" ? tournamentData.groupStage[group] : tournamentData[modeName];
-  list.splice(list.findIndex(p => p.name === name), 1);
+  const index = list.findIndex(p=>p.name===name);
+  if(index>-1) list.splice(index,1);
   renderParticipants();
 }
 
-function clearInputs() {
-  pName.value = "";
-  pImage.value = "";
-  pInfo.value = "";
-  pWins.value = "";
-  pDraws.value = "";
-  pLosses.value = "";
-  pDiff.value = "";
-  groupSelect.value = "";
+function clearInputs(){
+  document.getElementById("pName").value="";
+  document.getElementById("pImage").value="";
+  document.getElementById("pInfo").value="";
+  document.getElementById("pWins").value="";
+  document.getElementById("pDraws").value="";
+  document.getElementById("pLosses").value="";
+  document.getElementById("pDiff").value="";
+  document.getElementById("groupSelect").value="";
 }
 
 /* ===============================
    TABLE RENDERING
 ================================= */
 
-function renderParticipants() {
+function renderParticipants(){
   const container = document.getElementById("tablesContainer");
-  container.innerHTML = "";
+  container.innerHTML="";
 
-  if (mode === "groupStage") {
-    Object.keys(tournamentData.groupStage).forEach(group => {
+  if(mode==="groupStage"){
+    Object.keys(tournamentData.groupStage).forEach(group=>{
       const list = tournamentData.groupStage[group];
-      if (list.length === 0) return;
-      container.innerHTML += `<h4>Group ${group}</h4><table>${generateTable(list)}</table>`;
+      if(list.length===0) return;
+      container.innerHTML+=`<h4>Group ${group}</h4><table>${generateTable(list)}</table>`;
     });
-  } else if (mode === "roundRobin") {
-    container.innerHTML += `<table>${generateTable(tournamentData.roundRobin)}</table>`;
+  } else if(mode==="roundRobin"){
+    container.innerHTML+=`<table>${generateTable(tournamentData.roundRobin)}</table>`;
   }
 
-  // ✅ Attach click events after rendering
-  document.querySelectorAll("#tablesContainer td.clickable").forEach(td => {
-    td.onclick = () => {
+  // clickable
+  document.querySelectorAll("#tablesContainer td.clickable").forEach(td=>{
+    td.onclick=()=>{
       const table = td.closest("table");
       const groupHeader = table.previousElementSibling?.innerText;
       let list;
 
-      if (mode === "groupStage" && groupHeader) {
-        const groupName = groupHeader.replace("Group ", "");
+      if(mode==="groupStage" && groupHeader){
+        const groupName = groupHeader.replace("Group ","");
         list = tournamentData.groupStage[groupName];
       } else {
         list = tournamentData.roundRobin;
@@ -181,58 +187,59 @@ function renderParticipants() {
       showParticipantPopup(participant);
     };
   });
+
+  renderPodium(); // update podium
 }
 
-function generateTable(list) {
-  list.forEach(p => {
-    p.played = p.wins + p.draws + p.losses;
-    p.points = p.wins * 3 + p.draws;
+function generateTable(list){
+  list.forEach(p=>{
+    p.played=p.wins+p.draws+p.losses;
+    p.points=p.wins*3+p.draws;
   });
 
-  list.sort((a,b) => b.points - a.points || b.diff - a.diff);
+  list.sort((a,b)=>b.points-a.points||b.diff-a.diff);
 
   return `<thead>
-      <tr><th>#</th><th>Name</th><th>Pts</th><th>P</th><th>W</th><th>D</th><th>L</th><th>+/-</th></tr>
-    </thead>
-    <tbody>
-      ${list.map((p,i) => `<tr>
-        <td>${i+1}</td>
-        <td class="clickable" data-index="${i}">
-          ${p.image ? `<img src="${p.image}" class="player-img">` : ""}
-          ${p.name}
-        </td>
-        <td>${p.points}</td>
-        <td>${p.played}</td>
-        <td>${p.wins}</td>
-        <td>${p.draws}</td>
-        <td>${p.losses}</td>
-        <td>${p.diff}</td>
-      </tr>`).join("")}
-    </tbody>`;
+    <tr><th>#</th><th>Name</th><th>Pts</th><th>P</th><th>W</th><th>D</th><th>L</th><th>+/-</th></tr>
+  </thead>
+  <tbody>
+    ${list.map((p,i)=>`<tr>
+      <td>${i+1}</td>
+      <td class="clickable" data-index="${i}">
+        ${p.image?`<img src="${p.image}" class="player-img">`:""} ${p.name}
+      </td>
+      <td>${p.points}</td>
+      <td>${p.played}</td>
+      <td>${p.wins}</td>
+      <td>${p.draws}</td>
+      <td>${p.losses}</td>
+      <td>${p.diff}</td>
+    </tr>`).join("")}
+  </tbody>`;
 }
 
 /* ===============================
-   FIXTURES – live editable
+   FIXTURES MANAGEMENT
 ================================= */
 
-function generateFixtures() {
+function generateFixtures(){
   const container = document.getElementById("fixturesContainer");
-  container.innerHTML = "";
-  fixturesData = [];
+  container.innerHTML="";
+  fixturesData=[];
 
-  let groups = [];
-  if (mode === "roundRobin") groups.push({name:'', list:tournamentData.roundRobin});
-  else if (mode === "groupStage") groups = Object.keys(tournamentData.groupStage).map(g=>({name:g,list:tournamentData.groupStage[g]}));
+  let groups=[];
+  if(mode==="roundRobin") groups.push({name:'',list:tournamentData.roundRobin});
+  else if(mode==="groupStage") groups=Object.keys(tournamentData.groupStage).map(g=>({name:g,list:tournamentData.groupStage[g]}));
 
   groups.forEach(g=>{
-    const list = g.list;
+    const list=g.list;
     if(list.length<2) return;
-    if(g.name) container.innerHTML += `<h4>Group ${g.name}</h4>`;
+    if(g.name) container.innerHTML+=`<h4>Group ${g.name}</h4>`;
     for(let i=0;i<list.length;i++){
       for(let j=i+1;j<list.length;j++){
-        const matchId = `${g.name}-${i}-${j}`;
-        fixturesData.push({id:matchId, home:list[i].name, away:list[j].name, homeScore:null, awayScore:null});
-        container.innerHTML += `
+        const matchId=`${g.name}-${i}-${j}`;
+        fixturesData.push({id:matchId,home:list[i].name,away:list[j].name,homeScore:null,awayScore:null});
+        container.innerHTML+=`
           <div class="fixture-card" id="fixture-${matchId}">
             <span>${list[i].name}</span>
             <input type="number" placeholder="Score" id="home-${matchId}">
@@ -253,28 +260,25 @@ function saveFixture(matchId){
   const a = Number(document.getElementById(`away-${matchId}`).value);
   if(isNaN(h)||isNaN(a)) return alert("Enter valid scores");
 
-  match.homeScore = h;
-  match.awayScore = a;
-
+  match.homeScore=h; match.awayScore=a;
   updateStandings();
   renderParticipants();
-
   alert(`Saved: ${match.home} ${h} - ${a} ${match.away}`);
 }
 
 function updateStandings(){
-  // Reset stats
-  if(mode === "groupStage"){
+  // reset stats
+  if(mode==="groupStage"){
     Object.values(tournamentData.groupStage).forEach(group=>{
-      group.forEach(p=>{p.wins=0; p.draws=0; p.losses=0; p.diff=0;});
+      group.forEach(p=>{p.wins=0;p.draws=0;p.losses=0;p.diff=0;});
     });
   }
-  if(mode === "roundRobin"){
-    tournamentData.roundRobin.forEach(p=>{p.wins=0; p.draws=0; p.losses=0; p.diff=0;});
+  if(mode==="roundRobin"){
+    tournamentData.roundRobin.forEach(p=>{p.wins=0;p.draws=0;p.losses=0;p.diff=0;});
   }
 
   fixturesData.forEach(match=>{
-    if(match.homeScore===null || match.awayScore===null) return;
+    if(match.homeScore===null||match.awayScore===null) return;
     let homePlayer, awayPlayer;
     if(mode==="groupStage"){
       Object.values(tournamentData.groupStage).forEach(group=>{
@@ -284,24 +288,17 @@ function updateStandings(){
         });
       });
     } else {
-      homePlayer = tournamentData.roundRobin.find(p=>p.name===match.home);
-      awayPlayer = tournamentData.roundRobin.find(p=>p.name===match.away);
+      homePlayer=tournamentData.roundRobin.find(p=>p.name===match.home);
+      awayPlayer=tournamentData.roundRobin.find(p=>p.name===match.away);
     }
-    if(!homePlayer || !awayPlayer) return;
+    if(!homePlayer||!awayPlayer) return;
 
-    homePlayer.diff += (match.homeScore - match.awayScore);
-    awayPlayer.diff += (match.awayScore - match.homeScore);
+    homePlayer.diff += match.homeScore - match.awayScore;
+    awayPlayer.diff += match.awayScore - match.homeScore;
 
-    if(match.homeScore > match.awayScore){
-      homePlayer.wins++;
-      awayPlayer.losses++;
-    } else if(match.homeScore < match.awayScore){
-      awayPlayer.wins++;
-      homePlayer.losses++;
-    } else {
-      homePlayer.draws++;
-      awayPlayer.draws++;
-    }
+    if(match.homeScore>match.awayScore){ homePlayer.wins++; awayPlayer.losses++; }
+    else if(match.homeScore<match.awayScore){ awayPlayer.wins++; homePlayer.losses++; }
+    else{ homePlayer.draws++; awayPlayer.draws++; }
   });
 }
 
@@ -315,8 +312,6 @@ function showParticipantPopup(participant) {
   document.getElementById("popupName").innerText = participant.name;
   document.getElementById("popupInfo").innerText = participant.info || "No additional info.";
 
- document.getElementById("popupStats").innerHTML = "";
-
   popup.classList.remove("hidden");
 }
 
@@ -324,14 +319,13 @@ document.getElementById("closePopup").onclick = () => {
   document.getElementById("participantPopup").classList.add("hidden");
 };
 
-participantPopup.onclick = (e)=>{
-  if(e.target.id === "participantPopup"){
-    participantPopup.classList.add("hidden");
+document.getElementById("participantPopup").onclick = (e) => {
+  if (e.target.id === "participantPopup") {
+    document.getElementById("participantPopup").classList.add("hidden");
   }
 };
 
-function openPlayerProfile(name){
-
+function openPlayerProfile(name) {
   if(!name || name === "-") return;
 
   let player = null;
@@ -345,11 +339,11 @@ function openPlayerProfile(name){
   }
 
   if(mode === "roundRobin"){
-    player = tournamentData.roundRobin.find(p=>p.name === name);
+    player = tournamentData.roundRobin.find(p => p.name === name);
   }
 
   if(mode === "knockout"){
-    player = tournamentData.knockout.find(p=>p.name === name);
+    player = tournamentData.knockout.find(p => p.name === name);
   }
 
   if(player){
@@ -358,25 +352,39 @@ function openPlayerProfile(name){
 }
 
 /* ===============================
-   KNOCKOUT ENGINE + 3rd place
+   KNOCKOUT ENGINE + 3rd PLACE
 ================================= */
 
-function generateBracket() {
-  if(mode!=='knockout' && mode!=='groupStage') return;
-  let participants = [];
+function getQualifiers(){ return Number(document.getElementById("qualifiers").value)||2; }
 
-if(mode === "groupStage"){
-  participants = getQualifiedPlayers();
-}
-else if(mode === "knockout"){
-  participants = [...tournamentData.knockout];
-}
-  
+function getQualifiedPlayers(){
   updateStandings();
-  
+  const qualifiers = getQualifiers();
+  let groupWinners=[], groupRunnersUp=[];
+  Object.keys(tournamentData.groupStage).forEach(groupName=>{
+    const group=tournamentData.groupStage[groupName];
+    group.forEach(p=>{ p.played=p.wins+p.draws+p.losses; p.points=p.wins*3+p.draws; });
+    group.sort((a,b)=>b.points-a.points||b.diff-a.diff);
+    if(group[0]) groupWinners.push(group[0]);
+    if(qualifiers>=2 && group[1]) groupRunnersUp.push(group[1]);
+  });
+
+  let seeded=[];
+  for(let i=0;i<groupWinners.length;i++){
+    const winner=groupWinners[i];
+    const opponent=groupRunnersUp[(i+1)%groupRunnersUp.length];
+    seeded.push(winner); seeded.push(opponent);
+  }
+  return seeded;
+}
+
+function generateBracket(){
+  if(mode!=="knockout"&&mode!=="groupStage") return;
+  let participants=mode==="groupStage"?getQualifiedPlayers():[...tournamentData.knockout];
+  updateStandings();
   if(participants.length<2) return alert("Not enough participants");
 
-  knockoutRounds=[]; knockoutChampion=null; knockoutRunnerUp=null; thirdPlaceWinner=null;
+  knockoutRounds=[]; knockoutChampion=null; knockoutRunnerUp=null; thirdPlaceWinner=null; thirdPlaceMatch=null;
 
   let firstRound=[];
   for(let i=0;i<participants.length;i+=2){
@@ -393,11 +401,10 @@ else if(mode === "knockout"){
     knockoutRounds.push(next);
     size=next.length;
   }
-
   renderBracket();
 }
 
-function saveKnockoutScore(roundIndex, matchIndex){
+function saveKnockoutScore(roundIndex,matchIndex){
   const match=knockoutRounds[roundIndex][matchIndex];
   const homeScore=Number(document.getElementById(`k-home-${roundIndex}-${matchIndex}`).value);
   const awayScore=Number(document.getElementById(`k-away-${roundIndex}-${matchIndex}`).value);
@@ -415,78 +422,23 @@ function saveKnockoutScore(roundIndex, matchIndex){
 function advanceWinner(r,m){
   const winner=knockoutRounds[r][m].winner;
   const loser=knockoutRounds[r][m].loser;
- if(r===knockoutRounds.length-1){
-  knockoutChampion = winner;
-  knockoutRunnerUp = loser;
-
-  if(!document.getElementById("thirdPlaceToggle").checked){
-    showKnockoutMedals();
+  if(r===knockoutRounds.length-1){
+    knockoutChampion=winner; knockoutRunnerUp=loser;
+    if(!document.getElementById("thirdPlaceToggle").checked) showKnockoutMedals();
+    return;
   }
-  return;
-}
   const nextMatch=knockoutRounds[r+1][Math.floor(m/2)];
   if(m%2===0) nextMatch.home=winner; else nextMatch.away=winner;
 
-  // Place semifinal losers into 3rd place
   if(r===knockoutRounds.length-2 && document.getElementById("thirdPlaceToggle").checked){
     if(!thirdPlaceMatch) thirdPlaceMatch={home:null,away:null,homeScore:null,awayScore:null,winner:null};
     if(m%2===0) thirdPlaceMatch.home=loser; else thirdPlaceMatch.away=loser;
   }
 }
 
-let thirdPlaceMatch=null;
-
-function getQualifiers(){
-  return Number(document.getElementById("qualifiers").value) || 2;
-}
-
-function getQualifiedPlayers(){
-
-  updateStandings();
-
-  const qualifiers = getQualifiers();
-  let groupWinners = [];
-  let groupRunnersUp = [];
-
-  Object.keys(tournamentData.groupStage).forEach(groupName => {
-
-    const group = tournamentData.groupStage[groupName];
-
-    group.forEach(p=>{
-      p.played = p.wins + p.draws + p.losses;
-      p.points = p.wins * 3 + p.draws;
-    });
-
-    // Sort standings
-    group.sort((a,b)=> b.points - a.points || b.diff - a.diff);
-
-    // Winner
-    if(group[0]) groupWinners.push(group[0]);
-
-    // Runner-up
-    if(qualifiers >= 2 && group[1]) groupRunnersUp.push(group[1]);
-
-  });
-
-  // Cross-group seeding
-  let seeded = [];
-
-  for(let i=0;i<groupWinners.length;i++){
-
-    const winner = groupWinners[i];
-    const opponent = groupRunnersUp[(i+1) % groupRunnersUp.length];
-
-    seeded.push(winner);
-    seeded.push(opponent);
-
-  }
-
-  return seeded;
-}
-
 function saveThirdPlace(){
-  const h=Number(document.getElementById(`thirdHome`).value);
-  const a=Number(document.getElementById(`thirdAway`).value);
+  const h=Number(document.getElementById("thirdHome").value);
+  const a=Number(document.getElementById("thirdAway").value);
   if(isNaN(h)||isNaN(a)) return alert("Enter valid scores");
   if(h===a) return alert("No draws in 3rd place");
   thirdPlaceMatch.homeScore=h; thirdPlaceMatch.awayScore=a;
@@ -500,80 +452,53 @@ function renderBracket(){
   const container=document.getElementById("bracketContainer");
   container.innerHTML="";
   knockoutRounds.forEach((round,ri)=>{
-    const roundDiv=document.createElement("div");
-    roundDiv.className="round";
-    let roundName = "";
-
-if(knockoutRounds.length === 3){
-  if(ri===0) roundName="QF";
-  if(ri===1) roundName="SF";
-  if(ri===2) roundName="FINAL";
-}
-else if(knockoutRounds.length === 2){
-  if(ri===0) roundName="SF";
-  if(ri===1) roundName="FINAL";
-}
-else{
-  roundName = ri===knockoutRounds.length-1 ? "FINAL" : `Round ${ri+1}`;
-}
-
-roundDiv.innerHTML=`<h4 class="${roundName==='FINAL'?'final-title':''}">${roundName}</h4>`;
+    const roundDiv=document.createElement("div"); roundDiv.className="round";
+    let roundName="";
+    if(knockoutRounds.length===3){
+      if(ri===0) roundName="QF"; if(ri===1) roundName="SF"; if(ri===2) roundName="FINAL";
+    } else if(knockoutRounds.length===2){
+      if(ri===0) roundName="SF"; if(ri===1) roundName="FINAL";
+    } else{
+      roundName = ri===knockoutRounds.length-1?"FINAL":`Round ${ri+1}`;
+    }
+    roundDiv.innerHTML=`<h4 class="${roundName==='FINAL'?'final-title':''}">${roundName}</h4>`;
     round.forEach((match,mi)=>{
-      const div=document.createElement("div");
-      div.className="match";
-      if(match.winner){
-  div.classList.add("winner");
-}
-if(match.homeScore!==null && match.awayScore!==null){
-  div.classList.add("played");
-}
+      const div=document.createElement("div"); div.className="match";
+      if(match.winner) div.classList.add("winner");
+      if(match.homeScore!==null && match.awayScore!==null) div.classList.add("played");
       div.innerHTML=`
         <span class="clickable" onclick="openPlayerProfile('${match.home}')">${match.home||"-"}</span>
-
-      <input type="number" id="k-home-${ri}-${mi}" value="${match.homeScore??''}">
-
-      <span>vs</span>
-
-      <input type="number" id="k-away-${ri}-${mi}" value="${match.awayScore??''}">
-
-      <span class="clickable" onclick="openPlayerProfile('${match.away}')">${match.away||"-"}</span>
-
-      ${isAdminLoggedIn?`<button onclick="saveKnockoutScore(${ri},${mi})">Save</button>`:""}
-`     ;
+        <input type="number" id="k-home-${ri}-${mi}" value="${match.homeScore??''}">
+        <span>vs</span>
+        <input type="number" id="k-away-${ri}-${mi}" value="${match.awayScore??''}">
+        <span class="clickable" onclick="openPlayerProfile('${match.away}')">${match.away||"-"}</span>
+        ${isAdminLoggedIn?`<button onclick="saveKnockoutScore(${ri},${mi})">Save</button>`:""}
+      `;
       roundDiv.appendChild(div);
     });
     container.appendChild(roundDiv);
   });
 
-if(thirdPlaceMatch && (thirdPlaceMatch.home || thirdPlaceMatch.away)){
+  if(thirdPlaceMatch && (thirdPlaceMatch.home||thirdPlaceMatch.away)){
+    const wrapper=document.createElement("div"); wrapper.style.marginTop="40px";
+    const label=document.createElement("div"); label.className="third-place-label"; label.innerText="Third Place";
+    wrapper.appendChild(label);
+    const div=document.createElement("div"); div.className="match";
+    if(thirdPlaceMatch.winner) div.classList.add("winner");
+    div.innerHTML=`
+      <span>${thirdPlaceMatch.home||"-"}</span>
+      <input type="number" id="thirdHome" value="${thirdPlaceMatch.homeScore??''}">
+      <span>vs</span>
+      <input type="number" id="thirdAway" value="${thirdPlaceMatch.awayScore??''}">
+      <span>${thirdPlaceMatch.away||"-"}</span>
+      ${isAdminLoggedIn?`<button onclick="saveThirdPlace()">Save</button>`:""}
+    `;
+    wrapper.appendChild(div); container.appendChild(wrapper);
+  }
 
-  const wrapper=document.createElement("div");
-  wrapper.style.marginTop="40px";
-
-  const label=document.createElement("div");
-  label.className="third-place-label";
-  label.innerText="Third Place";
-  wrapper.appendChild(label);
-
-  const div=document.createElement("div");
-  div.className="match";
-
-  if(thirdPlaceMatch.winner) div.classList.add("winner");
-
-  div.innerHTML=`
-    <span>${thirdPlaceMatch.home||"-"}</span>
-    <input type="number" id="thirdHome" value="${thirdPlaceMatch.homeScore??''}">
-    <span>vs</span>
-    <input type="number" id="thirdAway" value="${thirdPlaceMatch.awayScore??''}">
-    <span>${thirdPlaceMatch.away||"-"}</span>
-    ${isAdminLoggedIn?`<button onclick="saveThirdPlace()">Save</button>`:""}
-  `;
-
-  wrapper.appendChild(div);
-  container.appendChild(wrapper);}
-}
-if(knockoutChampion && thirdPlaceWinner){
-  showKnockoutMedals();
+  if(knockoutChampion && (thirdPlaceWinner||!document.getElementById("thirdPlaceToggle").checked)){
+    showKnockoutMedals();
+  }
 }
 
 /* ===============================
@@ -589,5 +514,13 @@ function showKnockoutMedals(){
   `;
   showSection("medals");
 }
+
+function renderPodium(){
+  if(knockoutChampion) showKnockoutMedals();
+}
+
+/* ===============================
+   INITIALIZATION
+================================= */
 
 updateModeDisplay();

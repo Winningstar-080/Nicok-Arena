@@ -26,7 +26,14 @@ nav {
 
 nav h2 { margin: 0; font-weight: 600; }
 
-nav ul { list-style: none; display: flex; gap: 20px; }
+/* ✅ FIX: remove default spacing */
+nav ul { 
+  list-style: none; 
+  display: flex; 
+  gap: 20px; 
+  margin: 0;
+  padding: 0;
+}
 
 nav li { cursor: pointer; transition: 0.3s; }
 nav li:hover { color: #38bdf8; }
@@ -63,7 +70,8 @@ td {
   border-bottom: 1px solid #334155;
 }
 
-tr:hover { background: #1e293b; }
+/* ✅ FIX: make hover visible */
+tr:hover { background: #334155; }
 
 /* ==============================
    FIXTURES CARDS
@@ -91,9 +99,17 @@ tr:hover { background: #1e293b; }
    KNOCKOUT BRACKET
 ================================= */
 
-.bracket-tree { display: flex; gap: 60px; overflow-x: auto; padding: 20px 0; align-items: flex-start; }
+.bracket-tree { 
+  display: flex; 
+  gap: 60px; 
+  overflow-x: auto; 
+  padding: 20px 0; 
+  align-items: flex-start; 
+}
+
 .round { display: flex; flex-direction: column; gap: 40px; }
 .round h4 { text-align: center; }
+
 .match {
   background: #1e293b;
   padding: 15px;
@@ -104,24 +120,33 @@ tr:hover { background: #1e293b; }
   transition: 0.3s;
   position: relative;
 }
-.match.winner { border: 2px solid #38bdf8; }
-.match.played{
-  opacity:0.6;
+
+/* ✅ FIX: merged duplicate */
+.match.winner {
+  opacity: 1;
+  border: 2px solid #38bdf8;
 }
 
-.match.winner{
-  opacity:1;
-  border:2px solid #38bdf8;
+.match.played {
+  opacity: 0.6;
 }
+
 .match.loser { opacity: 0.5; }
-.match input { width: 50px; margin: 5px 0; display: block; margin-left: auto; margin-right: auto; }
+
+.match input { 
+  width: 50px; 
+  margin: 5px auto; 
+  display: block;
+}
+
 .match span { display: block; margin: 5px 0; }
+
 .third-place-label { 
   text-align: center; 
   margin-top: 20px; 
   font-weight: bold; 
   font-size: 1.1rem; 
-  color: #f97316;   /* Bronze */
+  color: #f97316;
 }
 
 .final-title{
@@ -138,23 +163,61 @@ tr:hover { background: #1e293b; }
    MEDAL PODIUM
 ================================= */
 
-.medal-podium { display: flex; justify-content: center; align-items: flex-end; gap: 40px; margin-top: 40px; }
-.podium-place { text-align: center; padding: 20px; border-radius: 10px; width: 150px; animation: slideUp 1s ease forwards; }
+.medal-podium { 
+  display: flex; 
+  justify-content: center; 
+  align-items: flex-end; 
+  gap: 40px; 
+  margin-top: 40px; 
+}
+
+.podium-place { 
+  text-align: center; 
+  padding: 20px; 
+  border-radius: 10px; 
+  width: 150px; 
+  animation: slideUp 1s ease forwards; 
+}
+
 .first { background: #facc15; height: 220px; }
 .second { background: #cbd5e1; height: 180px; }
 .third { background: #f97316; height: 150px; }
+
 .podium-place h2 { margin: 10px 0; }
-@keyframes slideUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+@keyframes slideUp { 
+  from { transform: translateY(100px); opacity: 0; } 
+  to { transform: translateY(0); opacity: 1; } 
+}
 
 /* ==============================
    ADMIN INPUTS
 ================================= */
 
-input, textarea, select { background: #1e293b; color: white; border: 1px solid #334155; padding: 8px; border-radius: 6px; margin-bottom: 10px; }
-button { background: #38bdf8; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; transition: 0.3s; }
+input, textarea, select { 
+  background: #1e293b; 
+  color: white; 
+  border: 1px solid #334155; 
+  padding: 8px; 
+  border-radius: 6px; 
+  margin-bottom: 10px; 
+}
+
+button { 
+  background: #38bdf8; 
+  border: none; 
+  padding: 8px 12px; 
+  border-radius: 6px; 
+  cursor: pointer; 
+  transition: 0.3s; 
+}
+
 button:hover { background: #0ea5e9; }
 
-/* Participant images in tables */
+/* ==============================
+   PARTICIPANTS
+================================= */
+
 .player-img{
   width:30px;
   height:30px;
@@ -164,17 +227,22 @@ button:hover { background: #0ea5e9; }
   vertical-align:middle;
 }
 
-/* Clickable table name hover */
 .clickable {
   cursor:pointer;
   transition:0.2s;
 }
+
 .clickable:hover {
   color:#38bdf8;
 }
 
-/* Participant Popup */
+/* ==============================
+   POPUP
+================================= */
+
+/* ✅ FIX: prevent flash */
 #participantPopup {
+  display: none;
   position: fixed;
   top:0;
   left:0;
@@ -199,7 +267,6 @@ button:hover { background: #0ea5e9; }
   position: relative;
   color:#f1f5f9;
   animation: popupFade 0.25s ease;
-
 }
 
 .popupContent img {
@@ -236,6 +303,10 @@ button:hover { background: #0ea5e9; }
   }
 }
 
+/* ==============================
+   PARTICIPANT FORM
+================================= */
+
 .participantRow{
   display:flex;
   flex-wrap:wrap;
@@ -243,7 +314,8 @@ button:hover { background: #0ea5e9; }
   align-items:center;
 }
 
+/* ✅ FIX: better textarea */
 .participantRow textarea{
-  height:36px;
-  resize:none;
+  height:60px;
+  resize:vertical;
 }

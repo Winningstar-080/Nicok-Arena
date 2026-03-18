@@ -3,7 +3,7 @@
    Fully Integrated Build with live scoring & 3rd place
 ===================================================== */
 
-const ADMIN_PASSWORD = "admin123";
+let ADMIN_PASSWORD = "admin123";
 
 let isAdminLoggedIn = false;
 let editIndex = null;
@@ -21,10 +21,34 @@ let tournamentData = {
 
 let fixturesData = [];
 let knockoutRounds = [];
+let tournamentHistory = [];
 let knockoutChampion = null;
 let knockoutRunnerUp = null;
 let thirdPlaceWinner = null;
 let thirdPlaceMatch = null;
+
+
+const pImageWrapper = document.getElementById("pImageWrapper");
+const pImageInput = document.getElementById("pImage");
+
+pImageWrapper.addEventListener("dragover", (e) => {
+  e.preventDefault();
+  pImageWrapper.classList.add("dragover");
+});
+
+pImageWrapper.addEventListener("dragleave", () => {
+  pImageWrapper.classList.remove("dragover");
+});
+
+pImageWrapper.addEventListener("drop", (e) => {
+  e.preventDefault();
+  pImageWrapper.classList.remove("dragover");
+
+  const files = e.dataTransfer.files;
+  if (files.length) {
+    pImageInput.files = files; // set the dropped file to the input
+  }
+});
 
 /* ===============================
    SECTION NAVIGATION
@@ -53,6 +77,21 @@ function login() {
   } else {
     alert("Wrong password");
   }
+}
+
+/* ===============================
+   CHANGE ADMIN PASSWORD
+================================= */
+
+function changeAdminPassword(){
+    const oldP = document.getElementById("oldPassword").value;
+    const newP = document.getElementById("newPassword").value;
+    if(oldP !== ADMIN_PASSWORD) return alert("Old password is incorrect");
+    if(!newP) return alert("Enter a new password");
+    ADMIN_PASSWORD = newP; // In-memory for now
+    alert("Password changed successfully!");
+    document.getElementById("oldPassword").value = "";
+    document.getElementById("newPassword").value = "";
 }
 
 /* ===============================
@@ -150,6 +189,68 @@ function clearInputs(){
   document.getElementById("groupSelect").value="";
 }
 
+/* =========================================
+   BULK PARTICIPANT UPLOAD (WITH IMAGE URL)
+========================================== */
+
+function bulkUploadParticipants() {
+  const fileInput = document.getElementById("bulkUploadInput");
+  const file = fileInput.files[0];
+  if (!file) return alert("Please select a CSV file.");
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const text = e.target.result;
+    const lines = text.split(/\r?\n/).filter(line => line.trim() !== "");
+
+    lines.forEach((line, index) => {
+      const cols = line.split(",");
+      if (cols.length < 2) return;
+
+      const [
+        name,
+        image,
+        info,
+        wins,
+        draws,
+        losses,
+        diff,
+        group
+      ] = cols.map(c => c.trim());
+
+      const participant = {
+        name: name || `Participant ${index + 1}`,
+        image: image || "", // ✅ Image URL added here
+        info: info || "",
+        wins: Number(wins) || 0,
+        draws: Number(draws) || 0,
+        losses: Number(losses) || 0,
+        diff: Number(diff) || 0,
+        group: group || (mode === "groupStage" ? "A" : "")
+      };
+
+      if (mode === "groupStage") {
+        if (!tournamentData.groupStage[participant.group]) {
+          tournamentData.groupStage[participant.group] = [];
+        }
+        tournamentData.groupStage[participant.group].push(participant);
+      } 
+      else if (mode === "roundRobin") {
+        tournamentData.roundRobin.push(participant);
+      } 
+      else if (mode === "knockout") {
+        tournamentData.knockout.push(participant);
+      }
+    });
+
+    renderParticipants();
+    alert("Bulk upload completed with images!");
+    fileInput.value = "";
+  };
+
+  reader.readAsText(file);
+}
+
 /* ===============================
    TABLE RENDERING
 ================================= */
@@ -219,39 +320,64 @@ function generateTable(list){
 }
 
 /* ===============================
-   FIXTURES MANAGEMENT
+   FIXTURES – Live Editable with Delete
 ================================= */
 
-function generateFixtures(){
+function generateFixtures() {
   const container = document.getElementById("fixturesContainer");
-  container.innerHTML="";
-  fixturesData=[];
+  container.innerHTML = "";
+  fixturesData = [];
 
-  let groups=[];
-  if(mode==="roundRobin") groups.push({name:'',list:tournamentData.roundRobin});
-  else if(mode==="groupStage") groups=Object.keys(tournamentData.groupStage).map(g=>({name:g,list:tournamentData.groupStage[g]}));
+  let groups = [];
+  if (mode === "roundRobin") groups.push({ name: '', list: tournamentData.roundRobin });
+  else if (mode === "groupStage") groups = Object.keys(tournamentData.groupStage).map(g => ({ name: g, list: tournamentData.groupStage[g] }));
 
-  groups.forEach(g=>{
-    const list=g.list;
-    if(list.length<2) return;
-    if(g.name) container.innerHTML+=`<h4>Group ${g.name}</h4>`;
-    for(let i=0;i<list.length;i++){
-      for(let j=i+1;j<list.length;j++){
-        const matchId=`${g.name}-${i}-${j}`;
-        fixturesData.push({id:matchId,home:list[i].name,away:list[j].name,homeScore:null,awayScore:null});
-        container.innerHTML+=`
+  groups.forEach(g => {
+    const list = g.list;
+    if (list.length < 2) return;
+
+    // Optional: Group header
+    if (g.name) container.innerHTML += `<h4>Group ${g.name}</h4>`;
+
+    for (let i = 0; i < list.length; i++) {
+      for (let j = i + 1; j < list.length; j++) {
+        const matchId = `${g.name}-${i}-${j}`;
+        fixturesData.push({ id: matchId, home: list[i].name, away: list[j].name, homeScore: null, awayScore: null });
+
+        // Render fixture card
+        container.innerHTML += `
           <div class="fixture-card" id="fixture-${matchId}">
             <span>${list[i].name}</span>
             <input type="number" placeholder="Score" id="home-${matchId}">
             <span>vs</span>
             <input type="number" placeholder="Score" id="away-${matchId}">
             <span>${list[j].name}</span>
-            ${isAdminLoggedIn?`<button onclick="saveFixture('${matchId}')">Save</button>`:""}
+            ${isAdminLoggedIn ? `
+              <button onclick="saveFixture('${matchId}')">Save</button>
+              <button onclick="deleteFixture('${matchId}')">Delete</button>
+            ` : ""}
           </div>
         `;
       }
     }
   });
+}
+
+/* ===============================
+   DELETE FIXTURE FUNCTION
+================================= */
+function deleteFixture(matchId) {
+  // Confirmation before deleting
+  if (!confirm("Are you sure you want to delete this fixture?")) return;
+
+  // Remove from fixturesData
+  fixturesData = fixturesData.filter(m => m.id !== matchId);
+
+  // Remove from DOM
+  const el = document.getElementById(`fixture-${matchId}`);
+  if (el) el.remove();
+
+  alert("Fixture deleted!");
 }
 
 function saveFixture(matchId){
@@ -500,6 +626,41 @@ function renderBracket(){
     showKnockoutMedals();
   }
 }
+
+function saveTournamentResult() {
+  if (!knockoutChampion || !knockoutRunnerUp || !thirdPlaceWinner) return;
+
+  const result = {
+    champion: knockoutChampion,
+    runnerUp: knockoutRunnerUp,
+    third: thirdPlaceWinner,
+    date: new Date().toLocaleString()
+  };
+  saveTournamentResult();
+  
+  tournamentHistory.push(result);
+  renderHistory();
+}
+
+function renderHistory() {
+  const container = document.getElementById("historyContainer");
+  container.innerHTML = "";
+
+  tournamentHistory.forEach((t, index) => {
+    container.innerHTML += `
+      <div class="history-card">
+        <h4>Tournament ${index + 1}</h4>
+        <div class="history-medals">
+          <span>🥇 Champion: ${t.champion}</span>
+          <span>🥈 Runner-up: ${t.runnerUp}</span>
+          <span>🥉 Third Place: ${t.third}</span>
+          <small>${t.date}</small>
+        </div>
+      </div>
+    `;
+  });
+}
+
 
 /* ===============================
    MEDAL PODIUM

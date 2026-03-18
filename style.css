@@ -191,6 +191,27 @@ tr:hover { background: #334155; }
 }
 
 /* ==============================
+   TOURNAMENT HISTORY
+================================= */
+
+.history-card {
+  background: #1e293b;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  border-left: 4px solid #38bdf8;
+}
+
+.history-card h4 {
+  margin-bottom: 8px;
+}
+
+.history-medals span {
+  display: block;
+  margin: 4px 0;
+}
+
+/* ==============================
    ADMIN INPUTS
 ================================= */
 
@@ -203,6 +224,18 @@ input, textarea, select {
   margin-bottom: 10px; 
 }
 
+/* Bulk Upload Note */
+.upload-note {
+  font-size: 0.9rem;
+  color: #cbd5e1;
+  background: #1e293b;
+  padding: 10px;
+  border-left: 4px solid #38bdf8;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+
 button { 
   background: #38bdf8; 
   border: none; 
@@ -213,6 +246,39 @@ button {
 }
 
 button:hover { background: #0ea5e9; }
+
+
+.image-drop-wrapper {
+  position: relative;
+  border: 2px dashed #334155;
+  border-radius: 8px;
+  padding: 15px;
+  text-align: center;
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: 0.3s;
+}
+
+.image-drop-wrapper.dragover {
+  border-color: #38bdf8;
+  background: rgba(56, 189, 248, 0.1);
+}
+
+.image-drop-wrapper input[type="file"] {
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  cursor: pointer;
+}
+
+.drop-text {
+  pointer-events: none;
+  color: #cbd5e1;
+  font-size: 0.9rem;
+}
 
 /* ==============================
    PARTICIPANTS

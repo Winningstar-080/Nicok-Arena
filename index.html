@@ -17,6 +17,7 @@
     <li onclick="showSection('fixtures')">Fixtures</li>
     <li onclick="showSection('brackets')">Brackets</li>
     <li onclick="showSection('medals')">Medals</li>
+    <li onclick="showSection('history')">History</li>
     <li onclick="showSection('admin')">Admin</li>
   </ul>
 </nav>
@@ -57,6 +58,11 @@
   <h3>Podium</h3>
   <div id="medalContainer" class="medal-podium"></div>
 </section>
+  
+<section id="history" class="section hidden">
+  <h3>Tournament History</h3>
+  <div id="historyContainer"></div>
+</section>
 
 <section id="admin" class="section hidden">
   <h3>Admin Panel</h3>
@@ -72,7 +78,21 @@
 
     <div class="participantRow">
       <input id="pName" placeholder="Name">
+      
+      <hr>
+        <h4>Bulk Participant Upload</h4>
+        <p class="upload-note">
+          Upload a CSV file with columns:<br>
+          <strong>Name, Info, Wins, Draws, Losses, Diff, Group (optional)</strong>
+        </p>
+        <input type="file" id="bulkUploadInput" accept=".csv">
+        <button onclick="bulkUploadParticipants()">Upload Participants</button>
+      
+    <div id="pImageWrapper" class="image-drop-wrapper">
       <input type="file" id="pImage" accept="image/*">
+      <span class="drop-text">Drag & drop image here</span>
+    </div>
+      
       <textarea id="pInfo" placeholder="Participant information (bio, team details etc)"></textarea>
       <input id="pWins" type="number" placeholder="Wins">
       <input id="pDraws" type="number" placeholder="Draws">
@@ -118,6 +138,12 @@
     <button onclick="generateFixtures()">Generate Fixtures</button>
     <button onclick="generateBracket()">Generate Knockout Bracket</button>
     <button onclick="showMedals()">Show Medals / Podium</button>
+    
+      <h4>Change Admin Password</h4>
+<input type="password" id="oldPassword" placeholder="Old password">
+<input type="password" id="newPassword" placeholder="New password">
+<button onclick="changeAdminPassword()">Change Password</button>
+  
   </div>
 </section>
 
